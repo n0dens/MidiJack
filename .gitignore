@@ -24,3 +24,5 @@ ipch/
 *.lnk
 .DS_Store
 Thumbs.db
+*.csproj
+*.sln
