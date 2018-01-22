@@ -31,7 +31,7 @@ namespace MidiJack
     {
         #region Custom Editor Window Code
 
-        [MenuItem("Window/MIDI Jack")]
+        [MenuItem("Window/MIDI Jack/MIDI In Stream")]
         public static void ShowWindow()
         {
             EditorWindow.GetWindow<MidiJackWindow>("MIDI Jack");

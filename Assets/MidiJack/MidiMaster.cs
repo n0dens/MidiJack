@@ -1,4 +1,5 @@
-//
+using UnityEngine;
+
 // MidiJack - MIDI Input Plugin for Unity
 //
 // Copyright (C) 2013-2016 Keijiro Takahashi
@@ -20,11 +21,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
 namespace MidiJack
 {
     public static class MidiMaster
     {
+        public static int defaultDeviceID;
+        public static string[] allOutDevices;
+
         // MIDI event delegates
         public static MidiDriver.NoteOnDelegate noteOnDelegate {
             get { return MidiDriver.Instance.noteOnDelegate; }
@@ -94,6 +97,52 @@ namespace MidiJack
         public static float GetKnob(int knobNumber, float defaultValue = 0)
         {
             return MidiDriver.Instance.GetKnob(MidiChannel.All, knobNumber, defaultValue);
+        }
+
+        // Gets all MIDI out devices and registers them to an array
+        public static void RegisterOutDevices () {
+            allOutDevices = MidiDriver.Instance.GetOutDevices();
+        }
+
+        // Sends a note to the default MIDI device
+        public static void SendNote (int channel, int noteNumber, int velocity) {
+            SendNote(defaultDeviceID, channel, noteNumber, velocity);
+        }
+
+        // Sends a note to the specified device
+        public static void SendNote (int deviceID, int channel, int noteNumber, int velocity) {
+            channel = Mathf.Clamp(channel, 0, 15);
+            noteNumber = Mathf.Clamp(noteNumber, 0, 127);
+            velocity = Mathf.Clamp(velocity, 0, 127);
+            MidiDriver.Instance.Send(deviceID, 0x90 + channel, noteNumber, velocity);
+        }
+
+        // Resets the specified channel for the given device, clearing all lights
+        public static void ResetChannel (int deviceID, int channel) {
+            for (int noteNumber = 0; noteNumber < 128; noteNumber++)
+            {
+                SendNote(deviceID, channel, noteNumber, 0);
+            }
+        }
+
+        // Resets the specified channel for the default device, clearing all lights 
+        public static void ResetChannel (int channel) {
+            ResetChannel(defaultDeviceID, channel);
+        }
+
+        // Resets the specified device
+        // NOTE: This process is somewhat slow, but will absolutely reset the device, clearing all lights
+        public static void ResetDevice (int deviceID) {
+            for (int c = 0; c < 16; c++)
+            {
+                ResetChannel(deviceID, c);
+            }
+        }
+
+        // Resets the default device
+        // NOTE: This process is somewhat slow, but will absolutely reset the device, clearing all lights
+        public static void ResetDevice () {
+            ResetDevice(defaultDeviceID);
         }
     }
 }
